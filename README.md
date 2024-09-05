@@ -82,7 +82,34 @@ python preperation/createLabels.py  --datadir <DATASET_ROOT>IDD_Segmentation/ --
 
 ### SHIFT
 * Download the SHIFT dataset from [the website](https://www.vis.xyz/shift/). Needed are the RGB images and semantic segmentation masks, for both train and val splits as well as the front camera. We do not use the other views (e.g. left_90) but our code is fully compatible with additional views if desired.
-* Extract to a folder named `SHIFT` in the folder `DATASET_ROOT`.
+* Note that the dataset authors provide a download script that can be used and will create some of the necessary folder structure:
+```bash
+python download.py <DATASET_ROOT>/SHIFT --split train,val --view front --group img,semseg --shift discrete --framerate images
+```
+* Once downloaded, ensure the files are extracted to a folder named `SHIFT` in the folder `DATASET_ROOT` with the following folder structure:
+├── discrete
+│   ├── images
+│   │   ├── train
+│   │   │   ├── front
+│   │   │   │   ├── 0003-17fb - *.jpg
+│   │   │   │   ├── 0016-1b62 - *.jpg
+│   │   │   │   ├── ....
+│   │   └── val
+│   │       ├── front
+│   │       │   ├── 007b-4e72 - *.jpg
+│   │       │   ├── 0116-4859 - *.jpg
+│   │       │   ├── ....
+│   ├── labels
+│   │   ├── train
+│   │   │   ├── front
+│   │   │   │   ├── 0003-17fb - *.png
+│   │   │   │   ├── 0016-1b62 - *.png
+│   │   │   │   ├── ....
+│   │   └── val
+│   │       ├── front
+│   │       │   ├── 007b-4e72 - *.png
+│   │       │   ├── 0116-4859 - *.png
+│   │       │   ├── ....
 * Run the `convert_SHIFT_to_cityscapes.py` script in the `dataset_processing` folder.
 
 ## Generating Ensembles
