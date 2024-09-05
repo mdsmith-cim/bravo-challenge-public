@@ -12,7 +12,7 @@ from tqdm.contrib.concurrent import process_map
 parser = argparse.ArgumentParser(description='SHIFT -> Cityscales label converter.')
 
 parser.add_argument('--shift_path', type=str,
-                    help='Folder for the SHIFT dataset. Expected format: <root> / discrete / [images,labels] / [train,val] / [front,left_90,right_90] / <sequence> / <img>',
+                    help='Folder for the SHIFT dataset. Expected format: <root> / discrete / [images,labels] / [train,val] / [front,left_90,right_90...] / <sequence> / <img>',
                     required=True)
 
 args = parser.parse_args()

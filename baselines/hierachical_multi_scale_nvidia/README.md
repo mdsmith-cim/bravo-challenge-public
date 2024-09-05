@@ -1,108 +1,59 @@
-### [Paper](https://arxiv.org/abs/2005.10821) | [YouTube](https://youtu.be/odAGA7pFBGA)  | [Cityscapes Score](https://www.cityscapes-dataset.com/method-details/?submissionID=7836) <br>
+# Implementation of the paper  [Hierarchical Multi-Scale Attention for Semantic Segmentation](https://arxiv.org/abs/2005.10821)
+Based on the [original Github repository](https://github.com/NVIDIA/semantic-segmentation).
 
-Pytorch implementation of our paper [Hierarchical Multi-Scale Attention for Semantic Segmentation](https://arxiv.org/abs/2005.10821).<br>
+For the old README, see [README_original.md](README_original.md).
 
-Please refer to the `sdcnet` branch if you are looking for the code corresponding to [Improving Semantic Segmentation via Video Prediction and Label Relaxation](https://nv-adlr.github.io/publication/2018-Segmentation).
+## Notes
 
-## Installation 
+* The code was used with torch 2.x
+* Dockerfile as provided by original authors was not used
+* Runx was not used
+* We trained models following the examples set by the various files in the `scripts` folder with some customization. Please see our [technical report](https://papers.cim.mcgill.ca/book/8) for details.
+* FP16 was used, but Apex was replaced with native Pytorch implementation
 
-* The code is tested with pytorch 1.3 and python 3.6
-* You can use ./Dockerfile to build an image.
+## Setup
 
-
-## Download Weights
-
-* Create a directory where you can keep large files. Ideally, not in this directory.
+* Create asset directory somewhere on disk to store large-ish files
 ```bash
   > mkdir <large_asset_dir>
 ```
-
-* Update `__C.ASSETS_PATH` in `config.py` to point at that directory
-
-  __C.ASSETS_PATH=<large_asset_dir>
-
-* Download pretrained weights from [google drive](https://drive.google.com/open?id=1fs-uLzXvmsISbS635eRZCc5uzQdBIZ_U) and put into `<large_asset_dir>/seg_weights`
+* Update `__C.DEFAULT_ASSETS_PATH` in `config.py` to point at that directory or specify it on the command line via `--assets_path`.
+* Update `__C.DATASET.DATASET_ROOT` in `config.py` to point to a folder containing all datasets or specify it on the command line via `--override_dataset_root`.
+* Download pretrained models from the original authors [google drive](https://drive.google.com/open?id=1fs-uLzXvmsISbS635eRZCc5uzQdBIZ_U) and put into `<large_asset_dir>/seg_weights`
+  * If following our naming convention, note that we rename `cityscapes_trainval_ocr.HRNet_Mscale_nimble-chihuahua.pth` to `cityscapes_SOTA_trainval_ocr.HRNet_Mscale_nimble-chihuahua.pth`.
+* Download the models we trained on various datasets from our site [here](https://library.cim.mcgill.ca/data/models/bravo_ensemble_models/) and place them into `<large_asset_dir>/seg_weights`.
+* Download and prepare the datasets as described below.
 
 ## Download/Prepare Data
 
-If using Cityscapes, download Cityscapes data, then update `config.py` to set the path:
-```python
-__C.DATASET.CITYSCAPES_DIR=<path_to_cityscapes>
-```
+Please see the instructions in the main [README.md](../../README.md) for details.
 
-* Download Autolabelled-Data from [google drive](https://drive.google.com/file/d/1DtPo-WP-hjaOwsbj6ZxTtOo_7R_4TKRG/view?usp=sharing)
+## Running the code - examples
 
-If using Cityscapes Autolabelled Images, download Cityscapes data, then update `config.py` to set the path:
-```python
-__C.DATASET.CITYSCAPES_CUSTOMCOARSE=<path_to_cityscapes>
-```
+The code can be run via `python train.py <args ...>`. Note that multiple GPU support is built in following pytorch's distributed libraries. By default, batches will be split between GPUs (except batch size 1, which forces only a single GPU).  However, when training it is best to explicitly use a set number of GPUs in distributed mode via `torchrun`.
 
-If using Mapillary, download Mapillary data, then update `config.py` to set the path:
-```python
-__C.DATASET.MAPILLARY_DIR=<path_to_mapillary>
-```
+Note that this GPU behaviour is all inherited from the original code and is common to any similarly-written Pytorch code.
 
-
-## Running the code
-
-The instructions below make use of a tool called `runx`, which we find useful to help automate experiment running and summarization. For more information about this tool, please see [runx](https://github.com/NVIDIA/runx).
-In general, you can either use the runx-style commandlines shown below. Or you can call `python train.py <args ...>` directly if you like.
-
-
-### Run inference on Cityscapes
-
-Dry run:
+Below are some examples of how to run training or inference. For examples from the original authors, look in the `scripts` folder. Note that the `apex` argument has been removed.
+### Inference (evaluating on Cityscapes)
 ```bash
-> python -m runx.runx scripts/eval_cityscapes.yml -i -n
+python train.py --dataset ${DATASET} --cv 0 --result_dir <RESULT_DIR> --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val  --snapshot ASSETS_PATH/seg_weights/cityscapes_SOTA_trainval_ocr.HRNet_Mscale_nimble-chihuahua.pth
 ```
-This will just print out the command but not run. It's a good way to inspect the commandline. 
-
-Real run:
+### Training
+An example for the GTA5 dataset:
 ```bash
-> python -m runx.runx scripts/eval_cityscapes.yml -i
+torchrun --standalone --nnodes=1 --nproc-per-node=2 train.py --assets_path <ASSETS_PATH> --override_dataset_root <DATASET_ROOT> --dataset gta5 --cv 0 --syncbn --distributed --result_dir <RESULT_DIR> --crop_size "1052,1914" --fp16 --bs_trn 3 --bs_val 3 --poly_exp 2 --lr 1e-2 --supervised_mscale_loss_wt 0.05 --max_epoch 175 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --rmi_loss --class_uniform_tile 1024 --snapshot ASSETS_PATH/seg_weights/mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake.pth
 ```
 
-The reported IOU should be 86.92. This evaluates with scales of 0.5, 1.0. and 2.0. You will find evaluation results in ./logs/eval_cityscapes/...
-
-### Run inference on Mapillary
-
+### Generating the logits from inference on multiple datasets
+The small script below can be used to generate and save the logits we use for generating our ensemble across multiple datasets. 
 ```bash
-> python -m runx.runx scripts/eval_mapillary.yml -i
+DATASET=bravo
+train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/cityscapes_sota_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/cityscapes_SOTA_trainval_ocr.HRNet_Mscale_nimble-chihuahua.pth
+train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/bdd100k_from_mapillary_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/bdd100k_from_mapillary_industrious-chicken-ep125.pth
+train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/idd_fromcityscapes_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/idd_fromcityscapes_outstanding-turtle_ep118.pth
+train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/mapillary_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/mapillary_pretrain_from_mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake_best_checkpoint_ep13.pth
+train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/wilddash_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/wilddash_fromcityscapes_nimble-chihuahua_ep115.pth
+train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/gta5_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/gta5_frommapillary-ep170.pth
+train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/SHIFT_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/shift_frommapillary_ep17.pth
 ```
-
-The reported IOU should be 61.05. Note that this must be run on a 32GB node and the use of 'O3' mode for amp is critical in order to avoid GPU out of memory. Results in logs/eval_mapillary/...
-
-### Dump images for Cityscapes
-
-```bash
-> python -m runx.runx scripts/dump_cityscapes.yml -i
-```
-
-This will dump network output and composited images from running evaluation with the Cityscapes validation set. 
-
-### Run inference and dump images on a folder of images
-
-```bash
-> python -m runx.runx scripts/dump_folder.yml -i
-```
-
-You should end up seeing images that look like the following:
-
-![alt text](imgs/composited_sf.png "example inference, composited")
-
-## Train a model
-
-Train cityscapes, using HRNet + OCR + multi-scale attention with fine data and mapillary-pretrained model
-```bash
-> python -m runx.runx scripts/train_cityscapes.yml -i
-```
-
-The first time this command is run, a centroid file has to be built for the dataset. It'll take about 10 minutes. The centroid file is used during training to know how to sample from the dataset in a class-uniform way.
-
-This training run should deliver a model that achieves 84.7 IOU.
-
-## Train SOTA default train-val split
-```bash
-> python -m runx.runx  scripts/train_cityscapes_sota.yml -i
-```
-Again, use `-n` to do a dry run and just print out the command. This should result in a model with 86.8 IOU. If you run out of memory, try to lower the crop size or turn off rmi_loss.
