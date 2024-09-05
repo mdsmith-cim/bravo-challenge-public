@@ -87,7 +87,7 @@ python preperation/createLabels.py  --datadir <DATASET_ROOT>IDD_Segmentation/ --
 python download.py <DATASET_ROOT>/SHIFT --split train,val --view front --group img,semseg --shift discrete --framerate images
 ```
 * Once downloaded, ensure the files are extracted to a folder named `SHIFT` in the folder `DATASET_ROOT` with the following folder structure:
-├── discrete
+```├── discrete
 │   ├── images
 │   │   ├── train
 │   │   │   ├── front
@@ -110,6 +110,7 @@ python download.py <DATASET_ROOT>/SHIFT --split train,val --view front --group i
 │   │       │   ├── 007b-4e72 - *.png
 │   │       │   ├── 0116-4859 - *.png
 │   │       │   ├── ....
+```
 * Run the `convert_SHIFT_to_cityscapes.py` script in the `dataset_processing` folder.
 
 ## Generating Ensembles
