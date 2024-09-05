@@ -7,7 +7,7 @@ For the old README, see [README_original.md](README_original.md).
 
 * The code was used with torch 2.x
 * Dockerfile as provided by original authors was not used
-* Runx was not used
+* Runx was not used to run any experiments, but is still used internally in the code for some logging and thus must be installed
 * We trained models following the examples set by the various files in the `scripts` folder with some customization. Please see our [technical report](https://papers.cim.mcgill.ca/book/8) for details.
 * FP16 was used, but Apex was replaced with native Pytorch implementation
 
@@ -49,11 +49,11 @@ torchrun --standalone --nnodes=1 --nproc-per-node=2 train.py --assets_path <ASSE
 The small script below can be used to generate and save the logits we use for generating our ensemble across multiple datasets. 
 ```bash
 DATASET=bravo
-train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/cityscapes_sota_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/cityscapes_SOTA_trainval_ocr.HRNet_Mscale_nimble-chihuahua.pth
-train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/bdd100k_from_mapillary_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/bdd100k_from_mapillary_industrious-chicken-ep125.pth
-train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/idd_fromcityscapes_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/idd_fromcityscapes_outstanding-turtle_ep118.pth
-train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/mapillary_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/mapillary_pretrain_from_mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake_best_checkpoint_ep13.pth
-train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/wilddash_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/wilddash_fromcityscapes_nimble-chihuahua_ep115.pth
-train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/gta5_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/gta5_frommapillary-ep170.pth
-train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/SHIFT_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/shift_frommapillary_ep17.pth
+python train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/cityscapes_sota_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/cityscapes_SOTA_trainval_ocr.HRNet_Mscale_nimble-chihuahua.pth
+python train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/bdd100k_from_mapillary_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/bdd100k_from_mapillary_industrious-chicken-ep125.pth
+python train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/idd_fromcityscapes_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/idd_fromcityscapes_outstanding-turtle_ep118.pth
+python train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/mapillary_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/mapillary_pretrain_from_mapillary_ocrnet.HRNet_Mscale_fast-rattlesnake_best_checkpoint_ep13.pth
+python train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/wilddash_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/wilddash_fromcityscapes_nimble-chihuahua_ep115.pth
+python train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/gta5_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/gta5_frommapillary-ep170.pth
+python train.py --dataset ${DATASET} --cv 0 --result_dir HMSA/${DATASET}_ds/SHIFT_model/ --fp16 --bs_val 1 --arch ocrnet.HRNet_Mscale --n_scales "0.5,1.0,2.0" --eval val --dump_logits --snapshot ASSETS_PATH/seg_weights/shift_frommapillary_ep17.pth
 ```

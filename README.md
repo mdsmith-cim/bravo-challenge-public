@@ -33,6 +33,16 @@ To run the code (including the dataset processing code provided by the respectiv
 * numpngw
 * pandas
 * opencv-python
+* detectron2
+* timm
+* fairscale
+* zmq
+* scipy
+* [panopticapi](https://github.com/cocodataset/panopticapi)
+* albumentations
+* webp
+* easydict
+* runx
 
 ## Dataset preparation
 
@@ -88,34 +98,37 @@ python download.py <DATASET_ROOT>/SHIFT --split train,val --view front --group i
 ```
 * Once downloaded, ensure the files are extracted to a folder named `SHIFT` in the folder `DATASET_ROOT` with the following folder structure:
 ```├── discrete
-│   ├── images
-│   │   ├── train
-│   │   │   ├── front
-│   │   │   │   ├── 0003-17fb - *.jpg
-│   │   │   │   ├── 0016-1b62 - *.jpg
-│   │   │   │   ├── ....
-│   │   └── val
-│   │       ├── front
-│   │       │   ├── 007b-4e72 - *.jpg
-│   │       │   ├── 0116-4859 - *.jpg
-│   │       │   ├── ....
-│   ├── labels
-│   │   ├── train
-│   │   │   ├── front
-│   │   │   │   ├── 0003-17fb - *.png
-│   │   │   │   ├── 0016-1b62 - *.png
-│   │   │   │   ├── ....
-│   │   └── val
-│   │       ├── front
-│   │       │   ├── 007b-4e72 - *.png
-│   │       │   ├── 0116-4859 - *.png
-│   │       │   ├── ....
+├── images
+│   ├── train
+│   │   ├── front
+│   │   │   ├── 0003-17fb - *.jpg
+│   │   │   ├── 0016-1b62 - *.jpg
+│   │   │   ├── ....
+│   └── val
+│       ├── front
+│       │   ├── 007b-4e72 - *.jpg
+│       │   ├── 0116-4859 - *.jpg
+│       │   ├── ....
+├── labels
+│   ├── train
+│   │   ├── front
+│   │   │   ├── 0003-17fb - *.png
+│   │   │   ├── 0016-1b62 - *.png
+│   │   │   ├── ....
+│   └── val
+│       ├── front
+│       │   ├── 007b-4e72 - *.png
+│       │   ├── 0116-4859 - *.png
+│       │   ├── ....
 ```
-* Run the `convert_SHIFT_to_cityscapes.py` script in the `dataset_processing` folder.
+* Run the `convert_SHIFT_to_cityscapes.py` script in the `dataset_processing` folder:
+```bash
+python convert_SHIFT_to_cityscapes.py --shift_path <DATASET_ROOT>/SHIFT/ --views front
+```
 
 ## Generating Ensembles
 
-To generate the ensembles, first run the respective baseline models to generate logits. Then navigate to the `aggregation` directory and run `generate_BRAVO_output.py`. It takes as positional arguments a lsit of folders to use for the ensemble; simply specify the folders with the logits generated from each model as desired. Note that different ways of combining samples are possible, but for all BRAVO submissions only the defaults (mean) was used. Finally, use the bravo_toolkit provided encoder to re-encode the submission into a format compatible with the online challenge server.
+To generate the ensembles, first run the respective baseline models to generate logits. Then navigate to the `aggregation` directory and run `generate_BRAVO_output.py`. It takes as positional arguments a lsit of folders to use for the ensemble; simply specify the folders with the logits generated from each model as desired. Note that different ways of combining samples are possible, but for all BRAVO submissions only the defaults (mean) were used. Finally, use the `bravo_toolkit` provided encoder to re-encode the submission into a format compatible with the online challenge server (see the [repository](https://github.com/valeoai/bravo_challenge) for details).
 
 For example, this command would generate the results for Ensemble A on Track 1:
 ```bash
