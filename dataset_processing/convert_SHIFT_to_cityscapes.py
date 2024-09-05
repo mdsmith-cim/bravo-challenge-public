@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser(description='SHIFT -> Cityscales label converte
 parser.add_argument('--shift_path', type=str,
                     help='Folder for the SHIFT dataset. Expected format: <root> / discrete / [images,labels] / [train,val] / [front,left_90,right_90...] / <sequence> / <img>',
                     required=True)
+parser.add_argument('--views', type=str, nargs='*', default=['front'], help='Views to process. Possible options are set by the SHIFT dataset e.g. front,left_90,right_90...')
 
 args = parser.parse_args()
 
@@ -204,7 +205,6 @@ labels_dir = discrete_dir / 'labels'
 assert img_dir.exists(), f'Expect {img_dir} to exist.'
 assert labels_dir.exists(), f'Expect {labels_dir} to exist.'
 
-views = ('front', 'left_90', 'right_90')
 splits = ('train', 'val')
 
 new_mask_dir = discrete_dir / 'labels_cityscapes'
@@ -212,7 +212,7 @@ new_mask_dir.mkdir(exist_ok=True)
 
 print('Finding all mask files...')
 all_mask_files = []
-for view in views:
+for view in args.views:
     for split in splits:
         mask_dir = labels_dir / split / view
         assert mask_dir.exists(), f'Expect {mask_dir} to exist.'
