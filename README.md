@@ -134,3 +134,6 @@ For example, this command would generate the results for Ensemble A on Track 1:
 ```bash
 DATASETS=('bravo_ACDC' 'bravo_SMIYC' 'bravo_synobjs' 'bravo_outofcontext' 'bravo_synflare' 'bravo_synrain'); for DATASET in "${DATASETS[@]}";do python generate_BRAVO_output.py HMSA/bravo_ds/cityscapes_sota_model/logits/${DATASET} RbA_logits/logits/${DATASET}/swin_l_1dl --out_path Ensemble_A_submission;done
 ```
+
+## Models
+Models used in this work can be [downloaded from McGill University](https://library.cim.mcgill.ca/data/models/bravo_ensemble_models/).
