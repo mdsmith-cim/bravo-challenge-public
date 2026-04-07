@@ -11,7 +11,7 @@ For our submission, we used the following "baseline" models:
 
 The code related to the above two models in our repository has been modified, with a particular focus on dataset handling and writing results to disk to be compatible with out approach.
 
-As detailed in our [technical report](https://papers.cim.mcgill.ca/book/8), our submissions to the BRAVO challenge used different combinations of the above two models trained on different datasets.
+As detailed in our [technical report](./BRAVO_Challenge_Report.pdf), our submissions to the BRAVO challenge used different combinations of the above two models trained on different datasets.
 
 The overall process is as follows:
 
